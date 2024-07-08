@@ -14,16 +14,17 @@ function Install-AnyDesk {
         # Create the installation directory if it doesn't exist
         if (-not (Test-Path -Path $InstallPath -PathType Container)) {
             Write-Progress -Activity "Installing AnyDesk" -Status "Creating installation directory" -PercentComplete 10
-            New-Item -Path $InstallPath -ItemType Directory
+            New-Item -Path $InstallPath -ItemType Directory | Out-Null
         }
 
         # Download AnyDesk
         Write-Progress -Activity "Installing AnyDesk" -Status "Downloading AnyDesk" -PercentComplete 20
-        Invoke-WebRequest -Uri $AnyDeskUrl -OutFile (Join-Path -Path $InstallPath -ChildPath "AnyDesk.exe")
+        Invoke-WebRequest -Uri $AnyDeskUrl -OutFile (Join-Path -Path $InstallPath -ChildPath "AnyDesk.exe") | Out-Null
 
         # Install AnyDesk silently
         Write-Progress -Activity "Installing AnyDesk" -Status "Installing AnyDesk" -PercentComplete 50
-        Start-Process -FilePath (Join-Path -Path $InstallPath -ChildPath "AnyDesk.exe") -ArgumentList "--install $InstallPath --start-with-win --silent" -Wait
+        $process = Start-Process -FilePath (Join-Path -Path $InstallPath -ChildPath "AnyDesk.exe") -ArgumentList "--install $InstallPath --start-with-win --silent" -PassThru
+        $process.WaitForExit()
 
         # Set AnyDesk password
         Write-Progress -Activity "Installing AnyDesk" -Status "Setting AnyDesk password" -PercentComplete 60
